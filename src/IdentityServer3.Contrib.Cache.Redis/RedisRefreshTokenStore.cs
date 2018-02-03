@@ -2,8 +2,8 @@
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentityServer3.Contrib.Cache.Redis
@@ -18,39 +18,61 @@ namespace IdentityServer3.Contrib.Cache.Redis
         public RedisRefreshTokenStore(ICacheManager cacheClient)
             => this.cacheClient = cacheClient;
 
-        public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
-        {
-            var keys = await cacheClient.SearchKeysAsync($"*:{subject}:*");
-            var list = await cacheClient.GetAllAsync<RefreshToken>(keys);
+        public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
+            => throw new NotImplementedException();
 
-            return list.Cast<ITokenMetadata>();
-        }
+        public Task<RefreshToken> GetAsync(string key)
+            => cacheClient.GetAsync<RefreshToken>(key);
 
-        public async Task<RefreshToken> GetAsync(string key)
-        {
-            var keys = (await cacheClient.SearchKeysAsync($"*:{key}"));
-            if (!keys.Any()) return null;
+        public Task RemoveAsync(string key)
+            => cacheClient.RemoveAsync(key);
 
-            return await cacheClient.GetAsync<RefreshToken>(keys.First());
-        }
-
-        public async Task RemoveAsync(string key)
-        {
-            var keys = (await cacheClient.SearchKeysAsync($"*:{key}"));
-            if (keys.Any())
-                await cacheClient.RemoveAsync(keys.First());
-        }
-
-        public async Task RevokeAsync(string subject, string client)
-        {
-            var keys = await cacheClient.SearchKeysAsync($"{client}:{subject}:*");
-            await cacheClient.RemoveAllAsync(keys);
-        }
+        public Task RevokeAsync(string subject, string client)
+            => throw new NotImplementedException();
 
         public Task StoreAsync(string key, RefreshToken value)
-            => cacheClient.AddAsync(GetRefreshTokenKey(key, value), value);
-
-        private string GetRefreshTokenKey(string key, RefreshToken value)
-            => $"{value.ClientId}:{value.SubjectId}:{key}";
+            => cacheClient.AddAsync(key, value);
     }
+
+    #region need fix with prefix
+    //public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
+    //{
+    //    var keys = cacheClient.SearchKeys($"*:{subject}:*");
+    //    var list = cacheClient.GetAll<RefreshToken>(keys);
+
+    //    return Task.FromResult(list.Cast<ITokenMetadata>());
+    //}
+
+    //public Task<RefreshToken> GetAsync(string key)
+    //{
+    //    var keys = cacheClient.SearchKeys($"*:{key}");
+    //    if (!keys.Any()) return null;
+
+    //    return Task.FromResult(cacheClient.Get<RefreshToken>(keys.First()));
+    //}
+
+    //public Task RemoveAsync(string key)
+    //{
+    //    var keys = cacheClient.SearchKeys($"*:{key}");
+
+    //    if (keys.Any())
+    //        return cacheClient.RemoveAsync(keys.First());
+
+    //    return Task.FromResult(true);
+    //}
+
+    //public Task RevokeAsync(string subject, string client)
+    //{
+    //    var keys = cacheClient.SearchKeys($"{client}:{subject}:*");
+    //    cacheClient.RemoveAll(keys);
+    //    return Task.FromResult(true);
+    //}
+
+    //public Task StoreAsync(string key, RefreshToken value)
+    //    => cacheClient.AddAsync(GetRefreshTokenKey(key, value), value);
+
+    //private string GetRefreshTokenKey(string key, RefreshToken value)
+    //    => $"{value.ClientId}:{value.SubjectId}:{key}";
+    #endregion
+
 }

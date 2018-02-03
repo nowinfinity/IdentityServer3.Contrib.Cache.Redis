@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using IdentityServer3.Contrib.Cache.Redis.CacheClient;
+﻿using IdentityServer3.Contrib.Cache.Redis.CacheClient;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using StackExchange.Redis;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IdentityServer3.Contrib.Cache.Redis
 {
